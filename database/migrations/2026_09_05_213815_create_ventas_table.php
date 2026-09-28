@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('ventas', function (Blueprint $table) {
             $table->id();
-            $table->string('numero', 50)->unique();
+            $table->string('numero', 50)->nullable()->unique();
 
             $table->foreignIdFor(\App\Models\Ubicacione::class)->constrained();
             $table->foreignIdfor(Cliente::class)->nullable()->constrained();

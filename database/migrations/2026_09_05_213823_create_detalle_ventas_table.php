@@ -22,14 +22,10 @@ return new class extends Migration
 
             $table->foreignIdfor(ProductoPrecio::class)->constrained();
 
-            // Número de presentaciones
-            // Ej: 2 cajas
+            // Cantidad REAL de unidades vendidas
             $table->decimal('cantidad', 12, 2);
 
-            // Convertido a unidades físicas
-            // 2 cajas x12 = 24
-            $table->decimal('unidades_totales', 12, 2);
-
+            // Precio elegido por unidad
             $table->decimal('precio_unitario', 12, 2);
 
             $table->decimal('descuento', 12, 2)->default(0);

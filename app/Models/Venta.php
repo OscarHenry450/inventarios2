@@ -23,7 +23,16 @@ use Illuminate\Database\Eloquent\Model;
 class Venta extends Model
 {
     use HasFactory;
-
+    protected static function booted(): void
+    {
+        static::created(function (Venta $venta) {
+            if (blank($venta->numero)) {
+                $venta->updateQuietly([
+                    'numero' => 'Venta-' . $venta->id,
+                ]);
+            }
+        });
+    }
     protected function casts(): array
     {
         return [
