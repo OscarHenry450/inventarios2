@@ -44,7 +44,16 @@ class UserForm
                             Hash::make($state)
                             )
                             ->minLength(8),
-
+                        Select::make('ubicaciones')
+                            ->label('Ubicaciones asignadas')
+                            ->relationship(
+                                name: 'ubicaciones',
+                                titleAttribute: 'nombre'
+                            )
+                            ->multiple()
+                            ->searchable()
+                            ->preload()
+                            ->helperText('Selecciona las tiendas y almacenes a los que tendrá acceso el usuario.'),
                         Select::make('roles')
                             ->label('Roles')
                             ->relationship(
@@ -54,6 +63,8 @@ class UserForm
                             ->multiple()
                             ->preload()
                             ->searchable(),
+
+
                     ])
                     ->columns(2),
             ]);

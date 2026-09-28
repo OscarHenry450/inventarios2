@@ -77,4 +77,13 @@ class User extends Authenticatable
             'user_id'
         );
     }
+    public function ubicaciones()
+    {
+        return $this->belongsToMany(
+            Ubicacione::class,
+            'ubicacione_users',
+            'user_id',
+            'ubicacione_id'
+        )->withTimestamps();
+    }
 }

@@ -51,4 +51,13 @@ class Ubicacione extends Model
             'ubicacione_id'
         );
     }
+    public function usuarios()
+    {
+        return $this->belongsToMany(
+            User::class,
+            'ubicacione_users',
+            'ubicacione_id',
+            'user_id'
+        )->withTimestamps();
+    }
 }
