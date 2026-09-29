@@ -23,6 +23,8 @@ use Illuminate\Database\Eloquent\Model;
 class Venta extends Model
 {
     use HasFactory;
+
+
     protected static function booted(): void
     {
         static::created(function (Venta $venta) {
@@ -58,24 +60,21 @@ class Venta extends Model
     public function cliente()
     {
         return $this->belongsTo(
-            Cliente::class,
-            'cliente_id'
+            Cliente::class
         );
     }
 
     public function usuario()
     {
         return $this->belongsTo(
-            User::class,
-            'user_id'
+            User::class
         );
     }
 
     public function detalles()
     {
         return $this->hasMany(
-            DetalleVenta::class,
-            'venta_id'
+            DetalleVenta::class
         );
     }
 }

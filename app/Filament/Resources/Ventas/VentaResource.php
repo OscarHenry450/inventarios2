@@ -16,15 +16,21 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 
 class VentaResource extends Resource
 {
     protected static ?string $model = Venta::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedShoppingCart;
 
     protected static ?string $recordTitleAttribute = 'numero';
 
+    protected static ?string $navigationLabel = 'Ventas';
+
+    protected static ?string $modelLabel = 'Venta';
+
+    protected static ?string $pluralModelLabel = 'Ventas';
     public static function form(Schema $schema): Schema
     {
         return VentaForm::configure($schema);
@@ -55,5 +61,25 @@ class VentaResource extends Resource
             'view' => ViewVenta::route('/{record}'),
             'edit' => EditVenta::route('/{record}/edit'),
         ];
+    }
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery();
+
+        $user = auth()->user();
+
+        if (! $user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        if ($user->hasRole('super_admin')) {
+            return $query;
+        }
+
+        return $query->whereIn(
+            'ubicacione_id',
+            $user->ubicaciones()
+                ->select('ubicaciones.id')
+        );
     }
 }

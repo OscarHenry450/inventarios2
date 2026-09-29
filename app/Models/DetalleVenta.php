@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Model;
     'producto_id',
     'producto_precio_id',
     'cantidad',
-    'unidades_totales',
     'precio_unitario',
     'descuento',
     'subtotal',
@@ -35,16 +34,14 @@ class DetalleVenta extends Model
     public function venta()
     {
         return $this->belongsTo(
-            Venta::class,
-            'venta_id'
+            Venta::class
         );
     }
 
     public function producto()
     {
         return $this->belongsTo(
-            Producto::class,
-            'producto_id'
+            Producto::class
         );
     }
 
