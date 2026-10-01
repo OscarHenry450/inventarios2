@@ -15,7 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
-
+use Illuminate\Database\Eloquent\Builder;
 class TransferenciaResource extends Resource
 {
     protected static ?string $model = Transferencia::class;
@@ -49,5 +49,18 @@ class TransferenciaResource extends Resource
             'view' => ViewTransferencia::route('/{record}'),
             'edit' => EditTransferencia::route('/{record}/edit'),
         ];
+    }
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where(function (Builder $query): void {
+
+                $query
+                    ->where('user_id', auth()->id())
+                    ->orWhere(
+                        'usuario_recibe_id',
+                        auth()->id()
+                    );
+            });
     }
 }

@@ -12,10 +12,12 @@ use Filament\Tables\Table;
 
 class TransferenciasTable
 {
-    public static function configure(Table $table): Table
+
+        public static function configure(Table $table): Table
     {
         return $table
             ->columns([
+
                 TextColumn::make('numero')
                     ->label('N.º Transferencia')
                     ->searchable()
@@ -23,67 +25,94 @@ class TransferenciasTable
 
                 TextColumn::make('ubicacionOrigen.nombre')
                     ->label('Origen')
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
 
                 TextColumn::make('ubicacionDestino.nombre')
                     ->label('Destino')
-                    ->searchable()
-                    ->sortable(),
+                    ->searchable(),
 
+                TextColumn::make('usuario.name')
+                    ->label('Remitente')
+                    ->searchable(),
+
+                TextColumn::make('usuarioRecibe.name')
+                    ->label('Destinatario')
+                    ->searchable(),
+
+                /*
+                 * Mostramos un estado visual.
+                 *
+                 * No estamos modificando el enum de la BD.
+                 */
                 TextColumn::make('estado')
                     ->label('Estado')
                     ->badge()
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'pendiente' => 'Pendiente',
-                        'preparando' => 'Preparando',
-                        'en_transito' => 'En tránsito',
-                        'completada' => 'Completada',
-                        'cancelada' => 'Cancelada',
-                        default => $state,
-                    })
-                    ->color(fn (string $state): string => match ($state) {
-                        'pendiente' => 'gray',
-                        'preparando' => 'warning',
-                        'en_transito' => 'info',
-                        'completada' => 'success',
-                        'cancelada' => 'danger',
-                        default => 'gray',
-                    })
-                    ->sortable(),
+                    ->formatStateUsing(
+                        function (
+                            string $state,
+                                   $record
+                        ): string {
+
+                            if ($state === 'completada') {
+                                return 'Completada';
+                            }
+
+                            if ($state === 'cancelada') {
+                                return 'Cancelada';
+                            }
+
+                            if (
+                                $state === 'pendiente'
+                                && $record->fecha_envio !== null
+                            ) {
+                                return 'Enviada';
+                            }
+
+                            return 'En preparación';
+                        }
+                    )
+                    ->color(
+                        function (
+                            string $state,
+                                   $record
+                        ): string {
+
+                            if ($state === 'completada') {
+                                return 'success';
+                            }
+
+                            if ($state === 'cancelada') {
+                                return 'danger';
+                            }
+
+                            if (
+                                $state === 'pendiente'
+                                && $record->fecha_envio !== null
+                            ) {
+                                return 'info';
+                            }
+
+                            return 'warning';
+                        }
+                    ),
 
                 TextColumn::make('fecha_solicitud')
-                    ->label('Fecha solicitud')
+                    ->label('Solicitud')
                     ->dateTime('d/m/Y H:i')
                     ->sortable(),
 
                 TextColumn::make('fecha_envio')
-                    ->label('Fecha envío')
+                    ->label('Envío')
                     ->dateTime('d/m/Y H:i')
-                    ->placeholder('-')
+                    ->placeholder('No enviada')
                     ->toggleable(),
 
                 TextColumn::make('fecha_recepcion')
-                    ->label('Fecha recepción')
+                    ->label('Recepción')
                     ->dateTime('d/m/Y H:i')
-                    ->placeholder('-')
+                    ->placeholder('No recibida')
                     ->toggleable(),
 
-                TextColumn::make('usuario.name')
-                    ->label('Solicitado por')
-                    ->placeholder('-')
-                    ->toggleable(),
-
-                TextColumn::make('usuarioRecibe.name')
-                    ->label('Recibido por')
-                    ->placeholder('-')
-                    ->toggleable(),
-
-                TextColumn::make('created_at')
-                    ->label('Creado')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
 
             ->filters([
@@ -92,34 +121,14 @@ class TransferenciasTable
                     ->label('Estado')
                     ->options([
                         'pendiente' => 'Pendiente',
-                        'preparando' => 'Preparando',
-                        'en_transito' => 'En tránsito',
                         'completada' => 'Completada',
                         'cancelada' => 'Cancelada',
                     ]),
 
-                SelectFilter::make('ubicacion_origen_id')
-                    ->label('Origen')
-                    ->relationship(
-                        'ubicacionOrigen',
-                        'nombre'
-                    )
-                    ->searchable()
-                    ->preload(),
+            ])
 
-                SelectFilter::make('ubicacion_destino_id')
-                    ->label('Destino')
-                    ->relationship(
-                        'ubicacionDestino',
-                        'nombre'
-                    )
-                    ->searchable()
-                    ->preload(),
-            ])
-            ->filters([
-                //
-            ])
             ->recordActions([
+
                 ViewAction::make()
                     ->label('Ver'),
 
@@ -128,13 +137,13 @@ class TransferenciasTable
                     ->visible(
                         fn ($record): bool =>
                             $record->estado === 'pendiente'
+                            && $record->fecha_envio === null
+                            && (int) $record->user_id
+                            === (int) auth()->id()
                     ),
+
             ])
-            ->toolbarActions([
-                BulkActionGroup::make([
-                    DeleteBulkAction::make(),
-                ]),
-            ])
-        ->defaultSort('id', 'desc');
+
+            ->defaultSort('id', 'desc');
     }
 }
