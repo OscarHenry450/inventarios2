@@ -28,7 +28,16 @@ class TransferenciaForm
                             ->label('N.º Transferencia')
                             ->required()
                             ->unique(ignoreRecord: true)
-                            ->maxLength(50),
+                            ->maxLength(50)
+                            ->default(function () {
+                                $ultimo = \App\Models\Transferencia::latest('id')->first();
+
+                                $numero = $ultimo ? $ultimo->id + 1 : 1;
+
+                                return 'TR-' . str_pad($numero, 6, '0', STR_PAD_LEFT);
+                            })
+                            ->disabled()
+                            ->dehydrated(true),
 
                         DateTimePicker::make('fecha_solicitud')
                             ->label('Fecha de solicitud')

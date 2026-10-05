@@ -16,4 +16,10 @@ class CreateTransferencia extends CreateRecord
 
         return $data;
     }
+    protected function getRedirectUrl(): string
+    {
+        return TransferenciaResource::getUrl('edit', [
+            'record' => $this->record,
+        ]);
+    }
 }

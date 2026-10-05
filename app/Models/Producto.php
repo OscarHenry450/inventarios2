@@ -51,4 +51,20 @@ class Producto extends Model
             'producto_id'
         );
     }
+    protected static function booted(): void
+    {
+        static::created(function (Producto $producto) {
+
+            $cantidades = Cantidade::where('activo', true)->get();
+
+            foreach ($cantidades as $cantidad) {
+                $producto->precios()->create([
+                    'cantidade_id' => $cantidad->id,
+                    'precio_unitario' => 0,
+                    'activo' => true,
+                ]);
+            }
+
+        });
+    }
 }
